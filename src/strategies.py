@@ -1,12 +1,12 @@
 import pandas as pd
-from indicators import simple_moving_average, zscore
+from .indicators import simple_moving_average, zscore
 
 def signal_sma_crossover(close, fast, slow) -> pd.Series:
     fast_sma = simple_moving_average(close, fast)
     slow_sma = simple_moving_average(close, slow)
 
-    cross_above = fast_sma > slow_sma and fast_sma.shift(1) <= slow_sma.shift(1)
-    cross_below = fast_sma < slow_sma and fast_sma.shift(1) >= slow_sma.shift(1)
+    cross_above = (fast_sma > slow_sma) & (fast_sma.shift(1) <= slow_sma.shift(1))
+    cross_below = (fast_sma < slow_sma) & (fast_sma.shift(1) >= slow_sma.shift(1))
 
     positions = []
     current = 0

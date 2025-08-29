@@ -21,7 +21,7 @@ end_date: str - The end date for the data.
 cache_dir: str - The directory to cache the data in.
 """
 def get_price_data(tickers: list[str], start_date: str, end_date: str, cache_dir: str = "data/") -> pd.DataFrame:
-    data = yf.download(tickers, start=start_date, end=end_date, auto_adjust=False, group_by="ticker")
+    data = yf.download(tickers, start=start_date, end=end_date, auto_adjust=False, group_by="ticker", threads=False)
 
     os.makedirs(cache_dir, exist_ok=True)
 

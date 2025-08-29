@@ -1,21 +1,25 @@
 from src.data import get_price_data
+from src.strategies import signal_sma_crossover, align_next_bar
+from src.engine import run_backtest
 import pandas as pd
-from src.indicators import simple_moving_average, zscore
 
-# df = get_price_data(["AAPL", "MSFT"], "2020-03-02", "2020-03-03")
+"""
+Quick test of the backtest engine
+"""
 
-# print(df)
+# --- toy price data (7 days) ---
+dates = pd.date_range("2022-01-03", periods=7, freq="B")  # business days
+close = pd.Series([100, 101, 102, 103, 104, 105, 106], index=dates, name="Close")
 
-series = pd.Series([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+# --- toy signal ---
+# 0 = flat, 1 = long
+# Go long on day 2, stay long until day 5, then flat again
+signal = pd.Series([0, 1, 1, 1, 0, 0, 0], index=dates, name="Signal")
 
-output = simple_moving_average(series, 3)
+# --- run backtest ---
+bt = run_backtest(close, signal, initial_cash=1000, fee_bps=0, slippage_bps=0, align_signal=False)
 
-z3 = zscore(series, 3)
-
-flat = pd.Series([5] * 10)
-
-z3_flat = zscore(flat, 4)
-
-print(output.to_list())
-print(z3.to_list())
-print(z3_flat.to_list())
+print(close)
+print(signal)
+print(bt)
+print("Final equity:", bt["equity"].iloc[-1])
