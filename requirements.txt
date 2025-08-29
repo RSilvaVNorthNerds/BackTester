@@ -3,3 +3,5 @@ numpy
 matplotlib
 yfinance
 pytest
+ipykernel
+jupyter
