@@ -4,22 +4,32 @@ from src.engine import run_backtest
 import pandas as pd
 
 """
-Quick test of the backtest engine
+Quick test of the backtest engine + signals with real data
 """
 
-# --- toy price data (7 days) ---
-dates = pd.date_range("2022-01-03", periods=7, freq="B")  # business days
-close = pd.Series([100, 101, 102, 103, 104, 105, 106], index=dates, name="Close")
+# --- get 1 year of AAPL + MSFT ---
+df = get_price_data(["AAPL","MSFT"], "2022-01-01", "2022-12-31")
+aapl_close = df[("AAPL","Close")]
+msft_close = df[("MSFT","Close")]
 
-# --- toy signal ---
-# 0 = flat, 1 = long
-# Go long on day 2, stay long until day 5, then flat again
-signal = pd.Series([0, 1, 1, 1, 0, 0, 0], index=dates, name="Signal")
+# --- strategy: 20/50 SMA crossover ---
+sig_aapl_raw = signal_sma_crossover(aapl_close, fast=20, slow=50)
+sig_msft_raw = signal_sma_crossover(msft_close, fast=20, slow=50)
 
-# --- run backtest ---
-bt = run_backtest(close, signal, initial_cash=1000, fee_bps=0, slippage_bps=0, align_signal=False)
+sig_aapl = align_next_bar(sig_aapl_raw)
+sig_msft = align_next_bar(sig_msft_raw)
 
-print(close)
-print(signal)
-print(bt)
-print("Final equity:", bt["equity"].iloc[-1])
+# --- run backtests ---
+bt_aapl = run_backtest(aapl_close, sig_aapl, initial_cash=100_000, fee_bps=1)
+bt_msft = run_backtest(msft_close, sig_msft, initial_cash=100_000, fee_bps=1)
+
+print("AAPL final equity:", bt_aapl["equity"].iloc[-1])
+print("MSFT final equity:", bt_msft["equity"].iloc[-1])
+
+print("\nAAPL sample:")
+print(bt_aapl.head(3))
+print(bt_aapl.tail(3))
+
+print("\nMSFT sample:")
+print(bt_msft.head(3))
+print(bt_msft.tail(3))
